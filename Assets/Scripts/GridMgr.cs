@@ -11,19 +11,16 @@ public class GridMgr : MonoBehaviour
     // [NonSerialized]
     public List<Agent> agents = new List<Agent>();
 
-    private List<bool> m_arrCanWalk;
-    private int m_iLenX, m_iLenZ;
+    public bool[,] m_arrCanWalk;
+    public int m_iLenX, m_iLenZ;
 
     // Start is called before the first frame update
     void Start()
     {
-        m_iLenX = GetXByPosX(maxX);
-        m_iLenZ = GetZByPosZ(maxZ);
-        m_arrCanWalk = new List<bool>(m_iLenX * m_iLenZ);
-        for(int i=0;i<m_iLenX * m_iLenZ;i++) 
-        {
-            m_arrCanWalk.Add(true);
-        }
+        m_iLenX = GetIndexXByPosX(maxX);
+        m_iLenZ = GetIndexZByPosZ(maxZ);
+        m_arrCanWalk = new bool[m_iLenX, m_iLenZ];
+        Clear();
 
         // agents = new List<Agent>();
     }
@@ -36,69 +33,72 @@ public class GridMgr : MonoBehaviour
         {
             Vector3 pos = item.transform.position;
             int r = Mathf.FloorToInt(item.radius / gridSize + 0.5f);
-            int x = GetXByPosX(pos.x);
-            int z = GetZByPosZ(pos.z);
+            int x = GetIndexXByPosX(pos.x);
+            int z = GetIndexZByPosZ(pos.z);
             for(int i=x-r;i<=x+r;i++) 
             {
                 for(int j=z-r;j<=z+r;j++) 
                 {
+                    if(!IsValidIndex(i, j)) 
+                    {
+                        continue;
+                    }
                     var dtX = i - x;
                     var dtZ = j - z;
                     if(dtX * dtX + dtZ * dtZ <= r * r) 
                     {
-                        m_arrCanWalk[Get2DBy1D(i, j)] = false;
+                        m_arrCanWalk[i, j] = false;
                     }
                 }
             }
         }
     }
 
-    public bool GetCanWalk(float x, float z) 
+    public bool GetCanWalkOfPos(float x, float z) 
     {
-        int id = GetIDByPosXZ(x, z);
-        if(id == -1) 
+        int indexX = GetIndexXByPosX(x);
+        int indexZ = GetIndexZByPosZ(z);
+        return GetCanWalkOfIndex(indexX, indexZ);
+    }
+
+    public bool GetCanWalkOfIndex(int indexX, int indexZ) 
+    {
+        if(!IsValidIndex(indexX, indexZ))
         {
             return false;
         }
 
-        return m_arrCanWalk[id];
+        return m_arrCanWalk[indexX, indexZ];
+    }
+
+    public Vector2Int GetIndex(float x, float z) 
+    {
+        return new Vector2Int(GetIndexXByPosX(x), GetIndexZByPosZ(z));
     }
 
     private void Clear()
     {
-        for(int i=0;i<m_arrCanWalk.Count;i++) 
+        for(int i=0;i<m_iLenX;i++) 
         {
-            m_arrCanWalk[i] = true;
+            for(int j=0;j<m_iLenZ;j++) 
+            {
+                m_arrCanWalk[i, j] = true;
+            }
         }
     }
 
-    private int GetIDByPosXZ(float x, float z) 
-    {
-        if(x < minX || x > maxX || z < minZ || z > maxZ) 
-        {
-            return -1;
-        }
-
-        int _x = GetXByPosX(x);
-        int _z = GetZByPosZ(z);
-        int id = Get2DBy1D(_x, _z);
-        if(id < 0) id = 0;
-        if(id >= m_arrCanWalk.Count) id = m_arrCanWalk.Count - 1;
-        return id;
-    }
-
-    private int Get2DBy1D(int x, int z) 
-    {
-        return x * m_iLenZ + z;
-    }
-
-    private int GetXByPosX(float x) 
+    private int GetIndexXByPosX(float x) 
     {
         return Mathf.FloorToInt((x - minX) * 1f / gridSize);
     }
 
-    private int GetZByPosZ(float z) 
+    private int GetIndexZByPosZ(float z) 
     {
         return Mathf.FloorToInt((z - minZ) * 1f / gridSize);
+    }
+
+    public bool IsValidIndex(int x, int z) 
+    {
+        return 0 <= x && x < m_iLenX && 0 <= z && z < m_iLenZ;
     }
 }
