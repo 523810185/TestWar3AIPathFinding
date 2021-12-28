@@ -1,5 +1,6 @@
-.vsconfig/
-TestWar3AIPatjFinding.sln
+.vsconfig
+.vscode/
+TestWar3AIPathFinding.sln
 Library/
 Temp/
 obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache
