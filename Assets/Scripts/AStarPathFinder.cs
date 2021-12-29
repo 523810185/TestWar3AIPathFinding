@@ -94,6 +94,10 @@ public class AStarPathFinder : IPathFinder
     {
         public int Compare(Node a, Node b) 
         {
+            // if(a.D != b.D) 
+            // {
+            //     return a.D - b.D;
+            // }
             return a.F - b.F;
         }
     }
@@ -136,6 +140,7 @@ public class AStarPathFinder : IPathFinder
         ClearNodeCache();
 
         var stNode = GetNewNode(Map.GetIndex(st.x, st.z));
+        stNode.used = true;
         var edNode = GetNewNode(Map.GetIndex(ed.x, ed.z));
         stNode.D = 0;
         stNode.H = stNode.GetHWithNode(edNode);
@@ -147,7 +152,7 @@ public class AStarPathFinder : IPathFinder
                 break;
             }
 
-            Node top = NodeQueue.Top();
+            Node top = NodeQueue.Pop();
             int nowX = top.x;
             int nowZ = top.z;
             if(nowX == edNode.x && nowZ == edNode.z) 
@@ -156,7 +161,7 @@ public class AStarPathFinder : IPathFinder
                 for(int __=0;__<1000000;__++)
                 {
                     path.Add(new Vector2Int(cur.x, cur.z));
-                    if(cur.x == stNode.x && cur.z == stNode.x) 
+                    if(cur.x == stNode.x && cur.z == stNode.z) 
                     {
                         break;
                     }
@@ -181,8 +186,9 @@ public class AStarPathFinder : IPathFinder
                 }
 
                 newNode.parent = top;
-                newNode.D = newNode.D + 1;
+                newNode.D = top.D + 1;
                 newNode.H = newNode.GetHWithNode(edNode);
+                newNode.used = true;
                 NodeQueue.Push(newNode);
             }
         }

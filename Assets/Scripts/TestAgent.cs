@@ -26,7 +26,8 @@ public class TestAgent : MonoBehaviour
             finder.FindPath(path, transform.position, edPos);
             foreach (var item in path)
             {
-                Debug.Log(" -- " + item);
+                var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                go.transform.position = mgr.GetPos(item.x, item.y);
             }
         }
     }

@@ -76,6 +76,11 @@ public class GridMgr : MonoBehaviour
         return new Vector2Int(GetIndexXByPosX(x), GetIndexZByPosZ(z));
     }
 
+    public Vector3 GetPos(int indexX, int indexZ) 
+    {
+        return new Vector3(minX + gridSize * indexX, 0, minZ + gridSize * indexZ);
+    }
+
     private void Clear()
     {
         for(int i=0;i<m_iLenX;i++) 
